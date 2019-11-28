@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>TodoMvc-DOM</title>
+    <link rel="stylesheet" href="css/normalize.8.css">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+
+<body>
+    <div id="todos">
+        <h1>todos</h1>
+        <div id="app">
+            <div class="title">
+                <div class="checkbox" onclick="checkAll()"></div>
+                <input class="add" autofocus="autofocus" autocomplete="off" placeholder="What needs to be done?" class="new-todo" onkeydown="add()">
+            </div>
+            <div class="items">
+            </div>
+            <div class="footer">
+                <span class="state">No items left</span>
+                <ul class="filters" onclick="filter()">
+                    <li><a href="#/all" class="selected">All</a></li>
+                    <li><a href="#/active">Active</a></li>
+                    <li><a href="#/completed">Completed</a></li>
+                </ul>
+                <a class="clear-completed" onclick="cleanAll()">
+                    Clear completed
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        let titleEl = document.getElementsByClassName("title")[0];
+        let itemsEl = document.getElementsByClassName("items")[0];
+        let footerEl = document.getElementsByClassName("footer")[0];
+        const STORAGE_KEY = 'TODOS_DOM_KEY';
+
+        (function inti() {
+            getStorage();
+            render();
+        })()
+
+        function setStorage(){
+            let datas = [];
+            let itemEls = itemsEl.children;
+            for(let item of itemEls){
+                let contentEl = item.firstElementChild;
+                let done = contentEl.firstElementChild.classList.contains('checked');
+                let text = contentEl.children[1].innerText;
+                let time = item.lastElementChild.value;
+                datas.push({ text, done ,time})
+            }
+            datas.sort(function compare(a,b){
+                return b.time - a.time;
+            });
+            localStorage.setItem(STORAGE_KEY,JSON.stringify(datas));
+        }
+        function getStorage(){
+            let datas = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
+            datas.sort(function compare(a,b){
+                return a.time - b.time;
+            });
+            datas.forEach(v => addItem(v.text,v.done,v.time));
+        }
+
+        //渲染
+        function render() {
+            let filter = 0;
+            let filterConditions = {
+                All: 0,
+                Active: 1,
+                Completed: 2
+            }
+            let footerEls = footerEl.children[1].children;
+            for(let footer of footerEls){
+                let fEl = footer.firstElementChild;
+                let text = fEl.innerText;
+                let selected = fEl.classList.contains("selected");
+                if(selected){
+                    filter = filterConditions[text];
+                    break;
+                }
+            }
+            
+            let itemEls = itemsEl.children;
+            let total = itemEls.length;
+            let active = 0;
+            let completed = 0;
+
+            //隐藏显示底部
+            if(total == 0){
+                itemsEl.style.display = 'none';
+                footerEl.style.display = 'none';
+            }else{
+                itemsEl.style.display = 'block';
+                footerEl.style.display = 'flex';
+            }
+
+            //计算选中/未选中状态个数
+            for(let item of itemEls){
+                let contentEl = item.firstElementChild;
+                let state = contentEl.firstElementChild.classList.contains("checked") ? 2 : 1;
+                state == 1 ? active++ : completed++;
+
+                let displayStyle = 'none';
+                if (filter == 0 || filter == state) {
+                    displayStyle = 'flex';
+                }
+                item.style.display = displayStyle;
+            }
+            
+            //隐藏显示全选按钮
+            let checkboxEl = titleEl.firstElementChild;
+            if (total > 0) {
+                checkboxEl.style.opacity = 1;
+            } else {
+                checkboxEl.style.opacity = 0;
+            }
+            //改变全选按钮
+            if(total == completed) {
+                checkboxEl.classList.add("checked");
+            }else{
+                checkboxEl.classList.remove("checked");
+            }
+
+            //显示状态个数
+            let stateEl = footerEl.firstElementChild;
+            stateEl.innerText = (active == 0 ? 'No' : active) + " item" + (active > 1 ? 's' : '') + " left"
+            //隐藏显示删除所有按钮
+
+            let cleanEl = footerEl.lastElementChild;
+            if (completed > 0) {
+                cleanEl.style.opacity = 1;
+            } else {
+                cleanEl.style.opacity = 0;
+            }
+            setStorage()
+        }
+        //添加
+        function add() {
+            if (event.which == 13) {
+                let el = event.target;
+                let value = el.value;
+                if (!value) return;
+                addItem(value,false,new Date().getTime());
+                el.value = ''
+                render()
+            }
+        }
+        //添加封装
+        function addItem(text,done,time) {
+            let itemEl = document.createElement("div");
+            itemEl.classList.add("item");
+            let contentEl = document.createElement("div");
+            contentEl.classList.add("content");
+
+            let checkboxEl = document.createElement("div");
+            checkboxEl.classList.add("checkbox");
+            if(done) checkboxEl.classList.add("checked");
+            checkboxEl.innerHTML = `
+                            <svg viewBox="12 13 29 22" stroke="currentColor" stroke-width="2" fill="none">
+                                <polyline points="13.2427972 23.7361617 21.8111153 32.3044798 38 16.1155951"></polyline>
+                            </svg>
+            `;
+            //改变状态
+            checkboxEl.onclick = changeDone;  
+            
+            let textEl = document.createElement("div");
+            textEl.classList.add("text");
+            textEl.innerText = text;
+            //双击修改
+            textEl.ondblclick = editBefore;
+
+            let removeEl = document.createElement("div");
+            removeEl.classList.add("remove");
+            removeEl.innerHTML = `
+                            <svg viewBox="19 19 22 22" stroke-linecap="round" width="18" height="18" stroke="currentColor" stroke-width="2">
+                                <g transform="translate(21.000000, 21.000000)">
+                                    <path d="M0.333333333,0.333333333 L17.4148373,17.4148373"></path>
+                                    <path d="M0.333333333,0.333333333 L17.4148373,17.4148373"
+                                        transform="translate(9.000000, 9.000000) scale(-1, 1) translate(-9.000000, -9.000000)"></path>
+                                </g>
+                            </svg>`;
+            //删除
+            removeEl.onclick = remove
+
+            contentEl.appendChild(checkboxEl);
+            contentEl.appendChild(textEl);
+            contentEl.appendChild(removeEl);
+            
+            let editEl = document.createElement("input");
+            editEl.classList.add("edit");
+            editEl.value = text;
+            //修改
+            editEl.onblur = editEl.onkeyup = edit;
+
+            let timeEl = document.createElement("input");
+            timeEl.classList.add("time");
+            timeEl.setAttribute("type", "hidden");
+            timeEl.value = time;
+
+            itemEl.appendChild(contentEl);
+            itemEl.appendChild(editEl);
+            itemEl.appendChild(timeEl);
+
+            // 找到第一个子节点，在子节点前插入
+            let beforeItem = itemsEl.firstElementChild;
+            itemsEl.insertBefore(itemEl,beforeItem);
+        }
+        //修改选中状态
+        function changeDone() {
+            //toggle:找到了则删除，没找到则添加
+            event.currentTarget.classList.toggle("checked")
+            render()
+        }
+        //删除
+        function remove() {
+            //阻止事件传播
+            event.stopPropagation();
+            event.currentTarget.parentNode.parentNode.remove();
+            render()
+        }
+        //双击编辑
+        function editBefore() {
+            let contentEl = event.currentTarget.parentNode;
+            //获取他的兄弟节点（下一个）
+            let editEl = contentEl.nextElementSibling;
+            contentEl.parentNode.classList.add('editing');
+            // let text = editEl.value;
+            // editEl.value = text;
+            editEl.focus();
+        }
+        //修改
+        function edit() {
+            event.stopPropagation();
+            event.preventDefault();
+            if (event.type == 'blur' || event.which === 13) {
+                let itemEl = event.currentTarget.parentNode;
+                let textEl = itemEl.firstElementChild.children[1];
+
+                let timeEl = itemEl.lastElementChild;
+                timeEl.value = new Date().getTime();
+
+                let text = event.currentTarget.value;
+                itemEl.classList.remove('editing');
+                textEl.innerText = text;
+                
+                let beforeItem = itemsEl.firstElementChild;
+                itemsEl.insertBefore(itemEl,beforeItem);
+            }
+            render();
+        }
+        //全选
+        function checkAll() {
+            let checked = !event.currentTarget.classList.contains("checked");
+            let itemEls = itemsEl.children;
+            for(let item of itemEls){
+                let contentEl = item.firstElementChild;
+                let state = contentEl.firstElementChild.classList.contains("checked");
+                if(checked != state){
+                    contentEl.firstElementChild.classList.toggle('checked');
+                }
+            }
+            render();
+        }
+        //删除所有已完成
+        function cleanAll() {
+            let itemEls = itemsEl.children;
+            for(let i = 0; i < itemEls.length; i++){
+                let item = itemEls[i];
+                let contentEl = item.firstElementChild;
+                let state = contentEl.firstElementChild.classList.contains("checked");
+                if(state){
+                    item.remove();
+                    i--;
+                }
+            }
+            render();
+        }
+        //过滤
+        function filter() {
+            event.stopPropagation()
+            event.preventDefault();
+            let filtersEl = event.currentTarget;
+            let selectedEl = event.target;
+            if (selectedEl.tagName !== 'A') return;
+            for (let aEl of filtersEl.children) {
+                aEl.firstElementChild.classList.remove('selected')
+            }
+            selectedEl.classList.add("selected");
+            render();
+        }
+    </script>
+</body>
+
+</html>
