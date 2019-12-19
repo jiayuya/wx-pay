@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>JS - Static</title>
+    <link rel="stylesheet" href="css/normalize.8.css">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+ 
+<body>
+<div id="todos">
+    <h1>todos</h1>
+    <div id="app">
+        <div class="title">
+            <div class="checkbox"></div>
+            <input class="add" autofocus="autofocus" autocomplete="off" placeholder="What needs to be done?"
+                   class="new-todo">
+        </div>
+        <div class="items">
+            <div class="item">
+                <div class="content">
+                    <div class="checkbox">
+                        <svg viewBox="12 13 29 22" stroke="currentColor" stroke-width="2"
+                             fill="none">
+                            <polyline points="13.2427972 23.7361617 21.8111153 32.3044798 38 16.1155951"></polyline>
+                        </svg>
+                    </div>
+                    <div class="text">11</div>
+                    <div class="remove">
+                        <svg viewBox="19 19 22 22" stroke-linecap="round" width="18" height="18"
+                             stroke="currentColor" stroke-width="2">
+                            <g transform="translate(21.000000, 21.000000)">
+                                <path d="M0.333333333,0.333333333 L17.4148373,17.4148373"></path>
+                                <path d="M0.333333333,0.333333333 L17.4148373,17.4148373"
+                                      transform="translate(9.000000, 9.000000) scale(-1, 1) translate(-9.000000, -9.000000)"></path>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+                <input type="text" class="edit">
+            </div>
+            <div class="item editing">
+                <div class="content">
+                    <div class="checkbox checked">
+                        <svg viewBox="12 13 29 22" stroke="currentColor" stroke-width="2"
+                             fill="none">
+                            <polyline points="13.2427972 23.7361617 21.8111153 32.3044798 38 16.1155951"></polyline>
+                        </svg>
+                    </div>
+                    <div class="text">22</div>
+                    <div class="remove">
+                        <svg viewBox="19 19 22 22" stroke-linecap="round" width="18" height="18"
+                             stroke="currentColor" stroke-width="2">
+                            <g transform="translate(21.000000, 21.000000)">
+                                <path d="M0.333333333,0.333333333 L17.4148373,17.4148373"></path>
+                                <path d="M0.333333333,0.333333333 L17.4148373,17.4148373"
+                                      transform="translate(9.000000, 9.000000) scale(-1, 1) translate(-9.000000, -9.000000)"></path>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+                <input type="text" class="edit">
+            </div>
+            <div class="item">
+                <div class="content">
+                    <div class="checkbox checked">
+                        <svg viewBox="12 13 29 22" stroke="currentColor" stroke-width="2"
+                             fill="none">
+                            <polyline points="13.2427972 23.7361617 21.8111153 32.3044798 38 16.1155951"></polyline>
+                        </svg>
+                    </div>
+                    <div class="text">33</div>
+                    <div class="remove">
+                        <svg viewBox="19 19 22 22" stroke-linecap="round" width="18" height="18"
+                             stroke="currentColor" stroke-width="2">
+                            <g transform="translate(21.000000, 21.000000)">
+                                <path d="M0.333333333,0.333333333 L17.4148373,17.4148373"></path>
+                                <path d="M0.333333333,0.333333333 L17.4148373,17.4148373"
+                                      transform="translate(9.000000, 9.000000) scale(-1, 1) translate(-9.000000, -9.000000)"></path>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+                <input type="text" class="edit">
+            </div>
+        </div>
+        <div class="footer">
+            <span class="state">20 items left</span>
+            <ul class="filters">
+                <li><a href="#/all" class="selected">All</a></li>
+                <li><a href="#/active">Active</a></li>
+                <li><a href="#/completed">Completed</a></li>
+            </ul>
+            <a class="clear-completed">
+                Clear completed
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+
+</html>
